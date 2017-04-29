@@ -1,0 +1,52 @@
+package main
+
+import "log"
+
+type File struct {
+  id   int
+  hash string
+  path string
+}
+
+const createFilesCommand = `
+		CREATE TABLE IF NOT EXISTS files (
+			id int not null,
+			hash varchar(255) not null,
+			path varchar(255) not null
+		);
+	`
+
+func (file *File) save(db *Database) {
+  err := db.exec(`INSERT INTO files(id, hash, path) VALUES(?, ?, ?);`, fileToRaw(file)...)
+
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+
+func (file *File) remove(db *Database) {
+  err := db.exec(`DELETE FROM files WHERE hash = ? and path = ?`, file.hash, file.path)
+
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+
+func clearFiles(db *Database) {
+  err := db.exec(`DELETE FROM files`)
+
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+
+func allFiles(db *Database) []File {
+  res, err := db.queryAll(`SELECT * FROM files;`, fileToFields, fieldsToFile)
+
+  if err != nil {
+    log.Fatal(err)
+    return nil
+  }
+
+  return toFiles(res)
+}
