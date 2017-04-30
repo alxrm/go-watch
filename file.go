@@ -8,14 +8,6 @@ type File struct {
   path string
 }
 
-const createFilesCommand = `
-		CREATE TABLE IF NOT EXISTS files (
-			id int not null,
-			hash varchar(255) not null,
-			path varchar(255) not null
-		);
-	`
-
 func (file *File) save(db *Database) {
   err := db.exec(`INSERT INTO files(id, hash, path) VALUES(?, ?, ?);`, fileToRaw(file)...)
 

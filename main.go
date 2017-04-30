@@ -8,19 +8,12 @@ import (
 )
 
 func main() {
-  db, err := makeDB("files.db", createFilesCommand)
+  db, err := makeDB(databaseFile, createStatement)
 
   if err != nil {
     log.Fatal(err)
     return
   }
-
-  file := File{id:1, hash: "345", path:"123"}
-  file.save(db)
-  //
-  //file.remove(db)
-  //
-  //clearFiles(db)
 
   fmt.Println(allFiles(db))
 }

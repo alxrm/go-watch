@@ -1,0 +1,6 @@
+.gitignore
+.idea/
+files.db
+go-watch
+from/
+to/
