@@ -7,6 +7,8 @@ import (
   "io/ioutil"
   "os"
   "log"
+  "path"
+  "strings"
 )
 
 func printDirContents(path string) {
@@ -18,6 +20,18 @@ func printDirContents(path string) {
 
   for _, f := range files {
     log.Println(f.Name())
+  }
+}
+
+func fullPathBy(rootDir, filePath string) string {
+  if path.IsAbs(filePath) {
+    return filePath
+  } else {
+    if strings.HasSuffix(rootDir, "/") {
+      rootDir = rootDir[:len(rootDir) - 1]
+    }
+
+    return rootDir + filePath[1:] // because we don't need the dot like here: `./`
   }
 }
 

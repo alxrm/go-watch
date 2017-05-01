@@ -9,34 +9,47 @@ type Watcher struct {
   IntervalMillis int
   RootDir        string
   Database       *Database
-  OnObserved     func(file File)
-  OnCheck        func(hash string) bool
+  OnObserved     func(file *File, where string)
   quit           chan bool
 }
 
-func (watcher *Watcher) watch() {
-  watcher.quit = make(chan bool)
+func (w *Watcher) watch() {
+  w.quit = make(chan bool)
 
   go func() {
-    delay := time.Duration(watcher.IntervalMillis) * time.Millisecond
+    delay := time.Duration(w.IntervalMillis) * time.Millisecond
 
     for {
-      watcher.performCheck()
+      w.performCheck()
 
       select {
       case <-time.After(delay):
-      case <-watcher.quit:
+      case <-w.quit:
         return
       }
     }
   }()
 }
 
-func (watcher *Watcher) performCheck() {
-  watcher.OnCheck("")
+func (w *Watcher) performCheck() {
+  log.Println("Checking...")
+  files := allFiles(w.Database)
+
+  for _, file := range files {
+    fullPath := fullPathBy(w.RootDir, file.path)
+    hash, err := md5sum(fullPath)
+
+    if err != nil {
+      continue
+    }
+
+    if hash == file.hash {
+      w.OnObserved(&file, fullPath)
+    }
+  }
 }
 
-func (watcher *Watcher) stop() {
-  close(watcher.quit)
+func (w *Watcher) stop() {
+  close(w.quit)
   log.Println("Stopped")
 }
