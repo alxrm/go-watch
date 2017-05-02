@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>File watcher terminal</title>
+</head>
+
+<style>
+  body {
+    background: #000000;
+    color: #efefef;
+  }
+
+  #container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -300px;
+    margin-top: -300px;
+    text-align: left;
+    width: 600px;
+    height: 400px;
+    padding: 0 20px 20px;
+    border: 1px solid #202020;
+    overflow-y: scroll;
+  }
+
+  #text {
+    background: #000000;
+    color: #efefef;
+    width: 100%;
+    padding: 10px 0 0;
+    font-size: 16px;
+    border: none;
+  }
+
+  #text:focus,
+  #text:active {
+    border: none;
+    outline: none;
+  }
+</style>
+
+<body>
+<div id="container">
+  <pre id="terminal"></pre>
+  <input placeholder="$" id="text" type="text">
+</div>
+
+<script>
+  var url = "ws://" + window.location.host + "/watcher";
+  var ws = new WebSocket(url);
+  var container = document.getElementById("container");
+  var terminal = document.getElementById("terminal");
+  var text = document.getElementById("text");
+
+  var now = function () {
+    var iso = new Date().toISOString();
+    return iso.split("T")[1].split(".")[0];
+  };
+
+  var add = function (text) {
+    terminal.innerText += now() + " " + text + "\n";
+    container.scrollTop = container.scrollHeight;
+  };
+
+  ws.onmessage = function (msg) {
+    add(msg.data);
+  };
+
+  text.onkeydown = function (e) {
+    if (e.keyCode === 13 && text.value !== "") {
+      add(text.value);
+      ws.send(text.value);
+      text.value = "";
+    }
+  };
+
+</script>
+</body>
+</html>

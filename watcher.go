@@ -2,7 +2,6 @@ package main
 
 import (
   "time"
-  "log"
 )
 
 type Watcher struct {
@@ -10,6 +9,7 @@ type Watcher struct {
   RootDir        string
   Database       *Database
   OnObserved     func(file *File, where string)
+  OnStopped      func()
   quit           chan bool
 }
 
@@ -32,18 +32,17 @@ func (w *Watcher) watch() {
 }
 
 func (w *Watcher) performCheck() {
-  log.Println("Checking...")
   files := allFiles(w.Database)
 
   for _, file := range files {
-    fullPath := fullPathBy(w.RootDir, file.path)
-    hash, err := md5sum(fullPath)
+    fullPath := fullPathBy(w.RootDir, file.Path)
+    hash, err := md5By(fullPath)
 
     if err != nil {
       continue
     }
 
-    if hash == file.hash {
+    if hash == file.Hash {
       w.OnObserved(&file, fullPath)
     }
   }
@@ -51,5 +50,8 @@ func (w *Watcher) performCheck() {
 
 func (w *Watcher) stop() {
   close(w.quit)
-  log.Println("Stopped")
+
+  if w.OnStopped != nil {
+    w.OnStopped()
+  }
 }

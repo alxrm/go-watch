@@ -12,16 +12,16 @@ func toFiles(raw []interface{}) []File {
 
 func fieldsToFile(fields []interface{}) interface{} {
   return File{
-    hash: *(fields[0].(*string)),
-    path: *(fields[1].(*string)),
+    Hash: *(fields[0].(*string)),
+    Path: *(fields[1].(*string)),
   }
 }
 
 func fileToRaw(file *File) []interface{} {
   var raw = make([]interface{}, 2)
 
-  raw[0] = file.hash
-  raw[1] = file.path
+  raw[0] = file.Hash
+  raw[1] = file.Path
 
   return raw
 }
@@ -30,8 +30,8 @@ func fileToFields() []interface{} {
   file := File{}
   fields := make([]interface{}, 2)
 
-  fields[0] = &file.hash
-  fields[1] = &file.path
+  fields[0] = &file.Hash
+  fields[1] = &file.Path
 
   return fields
 }

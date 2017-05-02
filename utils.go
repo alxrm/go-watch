@@ -35,7 +35,7 @@ func fullPathBy(rootDir, filePath string) string {
   }
 }
 
-func md5sum(filePath string) (string, error) {
+func md5By(filePath string) (string, error) {
   file, errOpen := os.Open(filePath)
 
   var result string
