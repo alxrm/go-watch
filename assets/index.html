@@ -78,8 +78,8 @@
       return
     }
 
-    text.value = entered[offset];
     offset -= 1;
+    text.value = entered[offset] || "";
   };
 
   var exec = function() {
