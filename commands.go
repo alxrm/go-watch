@@ -17,14 +17,19 @@ var commands = map[string]func(*Context, []string){
 }
 
 func onAdd(ctx *Context, args []string) {
-  if len(args) < 3 {
-    say(ctx.Socket, "Error: Not enough arguments")
+  if len(args) != 3 {
+    say(ctx.Socket, "Error: Wrong arguments")
     return
   }
 
   fields := args[1:]
-
   file := rawFieldsToFile(fields)
+
+  if file.Hash == "" || file.Path == "" {
+    say(ctx.Socket, "Error: Wrong arguments")
+    return
+  }
+
   file.save(ctx.Database)
 
   say(ctx.Socket, "Watching: " + file.Hash + ":" + file.Path)
@@ -110,5 +115,5 @@ func onHelp(ctx *Context, _ []string) {
 }
 
 func onDefault(ctx *Context, args []string) {
-  say(ctx.Socket, "Error: Wrong command " + args[0] + ", type `help` for info about commands")
+  say(ctx.Socket, "Error: Command " + args[0] + " not found, type `help` for info about commands")
 }

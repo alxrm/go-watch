@@ -71,5 +71,6 @@ func main() {
     }
   })
 
+  watcher.start()
   router.Run(":5000")
 }

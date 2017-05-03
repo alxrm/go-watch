@@ -24,6 +24,11 @@ func rawFieldsToFile(fields []string) *File {
 
   for _, fd := range fields {
     arg := strings.Split(fd, "=")
+
+    if len(arg) < 2 {
+      continue
+    }
+
     key := strings.ToLower(arg[0])
     value := strings.TrimSpace(arg[1])
 
