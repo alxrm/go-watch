@@ -9,7 +9,7 @@ type Database struct {
   client *sql.DB
 }
 
-func makeDB(file string, create string) (*Database, error) {
+func newDB(file string, create string) (*Database, error) {
   db, errOpen := sql.Open("sqlite3", file)
 
   if errOpen != nil {

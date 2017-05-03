@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 func toFiles(raw []interface{}) []File {
   res := make([]File, len(raw))
 
@@ -15,6 +17,24 @@ func fieldsToFile(fields []interface{}) interface{} {
     Hash: *(fields[0].(*string)),
     Path: *(fields[1].(*string)),
   }
+}
+
+func rawFieldsToFile(fields []string) *File {
+  file := &File{}
+
+  for _, fd := range fields {
+    arg := strings.Split(fd, "=")
+    key := strings.ToLower(arg[0])
+    value := strings.TrimSpace(arg[1])
+
+    if key == "hash" {
+      file.Hash = value
+    } else if key == "path" {
+      file.Path = value
+    }
+  }
+
+  return file
 }
 
 func fileToRaw(file *File) []interface{} {

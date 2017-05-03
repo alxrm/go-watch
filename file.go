@@ -41,3 +41,15 @@ func allFiles(db *Database) []File {
 
   return toFiles(res)
 }
+
+func filesByHash(db *Database, hash string) []File {
+  args := []interface{}{hash}
+  res, err := db.query(`SELECT * FROM files WHERE hash = ?;`, args, fileToFields, fieldsToFile)
+
+  if err != nil {
+    log.Fatal(err)
+    return []File{}
+  }
+
+  return toFiles(res)
+}

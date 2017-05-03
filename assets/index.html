@@ -21,6 +21,7 @@
     padding: 0 20px 20px;
     border: 1px solid #202020;
     overflow-y: scroll;
+    white-space: nowrap;
   }
 
   #text {
@@ -52,13 +53,10 @@
   var terminal = document.getElementById("terminal");
   var text = document.getElementById("text");
 
-  var now = function () {
-    var iso = new Date().toISOString();
-    return iso.split("T")[1].split(".")[0];
-  };
+  var add = function (text, from) {
+    var sender = from ? from + " " : "";
 
-  var add = function (text) {
-    terminal.innerText += now() + " " + text + "\n";
+    terminal.innerText += sender + text + "\n";
     container.scrollTop = container.scrollHeight;
   };
 
@@ -68,7 +66,7 @@
 
   text.onkeydown = function (e) {
     if (e.keyCode === 13 && text.value !== "") {
-      add(text.value);
+      add(text.value, "$");
       ws.send(text.value);
       text.value = "";
     }
