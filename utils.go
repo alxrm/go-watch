@@ -3,10 +3,11 @@ package main
 import (
   "crypto/md5"
   "encoding/hex"
+  "gopkg.in/olahol/melody.v1"
   "io"
   "io/ioutil"
-  "os"
   "log"
+  "os"
   "path"
   "strings"
 )
@@ -33,6 +34,10 @@ func fullPathBy(rootDir, filePath string) string {
 
     return rootDir + filePath[1:] // because we don't need the dot like here: `./`
   }
+}
+
+func say(sock *melody.Melody, msg string) {
+  sock.Broadcast([]byte(msg))
 }
 
 func md5By(filePath string) (string, error) {

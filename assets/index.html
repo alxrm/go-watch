@@ -7,20 +7,17 @@
   body {
     background: #000000;
     color: #efefef;
+    padding: 16px;
   }
 
   #container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-left: -300px;
-    margin-top: -300px;
     text-align: left;
-    width: 600px;
-    height: 400px;
-    padding: 0 20px 20px;
-    border: 1px solid #202020;
+    line-height: 1.4;
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
     overflow-y: scroll;
+    font-family: monospace;
     white-space: nowrap;
   }
 
@@ -29,7 +26,7 @@
     color: #efefef;
     width: 100%;
     padding: 10px 0 0;
-    font-size: 16px;
+    font-size: 20px;
     border: none;
   }
 
@@ -42,13 +39,15 @@
 
 <body>
 <div id="container">
-  <pre id="terminal"></pre>
+  <div id="terminal"></div>
   <input placeholder="$" id="text" type="text">
 </div>
 
 <script>
   var url = "ws://" + window.location.host + "/watcher";
   var ws = new WebSocket(url);
+  var entered = [];
+  var offset = -1;
   var container = document.getElementById("container");
   var terminal = document.getElementById("terminal");
   var text = document.getElementById("text");
@@ -60,15 +59,52 @@
     container.scrollTop = container.scrollHeight;
   };
 
+  var save = function(cmd) {
+    entered = [cmd].concat(entered);
+  };
+
+  var prev = function() {
+    if (offset === entered.length - 1) {
+      return
+    }
+
+    offset += 1;
+    text.value = entered[offset];
+  };
+
+  var next = function() {
+    if (offset === -1) {
+      text.value = "";
+      return
+    }
+
+    text.value = entered[offset];
+    offset -= 1;
+  };
+
+  var exec = function() {
+    save(text.value);
+    add(text.value, "$");
+    ws.send(text.value);
+    text.value = "";
+    offset = -1;
+  };
+
   ws.onmessage = function (msg) {
     add(msg.data);
   };
 
   text.onkeydown = function (e) {
+    if (e.keyCode === 38) {
+      prev();
+    }
+
+    if (e.keyCode === 40) {
+      next();
+    }
+
     if (e.keyCode === 13 && text.value !== "") {
-      add(text.value, "$");
-      ws.send(text.value);
-      text.value = "";
+      exec();
     }
   };
 

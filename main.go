@@ -1,10 +1,10 @@
 package main
 
 import (
-  _ "github.com/mattn/go-sqlite3"
-  "log"
   "github.com/gin-gonic/gin"
+  _ "github.com/mattn/go-sqlite3"
   "gopkg.in/olahol/melody.v1"
+  "log"
   "net/http"
   "strings"
 )
@@ -28,19 +28,19 @@ func main() {
 
   watcher := &Watcher{
     IntervalMillis: 1000,
-    Database: db,
+    Database:       db,
     OnObserved: func(file *File, path string) {
-      socket.Broadcast([]byte("Found: " + path))
+      say(socket, "Found: " + path)
     },
     OnStopped: func() {
-      socket.Broadcast([]byte("Stopped"))
+      say(socket, "Stopped")
     },
   }
 
   context := &Context{
-    Watcher: watcher,
+    Watcher:  watcher,
     Database: db,
-    Socket: socket,
+    Socket:   socket,
   }
 
   router.GET("/", func(c *gin.Context) {
@@ -52,7 +52,7 @@ func main() {
   })
 
   socket.HandleConnect(func(s *melody.Session) {
-    socket.Broadcast([]byte("Connected, ready to watch!"))
+    say(socket, "Connected, ready to watch!")
   })
 
   socket.HandleMessage(func(s *melody.Session, msg []byte) {
@@ -70,8 +70,6 @@ func main() {
       commands["default"](context, args)
     }
   })
-
-  watcher.watch()
 
   router.Run(":5000")
 }

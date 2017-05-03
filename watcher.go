@@ -13,7 +13,7 @@ type Watcher struct {
   quit           chan bool
 }
 
-func (w *Watcher) watch() {
+func (w *Watcher) start() {
   w.quit = make(chan bool)
 
   go func() {
@@ -49,7 +49,7 @@ func (w *Watcher) performCheck() {
 }
 
 func (w *Watcher) stop() {
-  close(w.quit)
+  w.quit <- true
 
   if w.OnStopped != nil {
     w.OnStopped()

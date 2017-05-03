@@ -5,17 +5,20 @@ import (
 )
 
 var commands = map[string]func(*Context, []string){
-  "watch": onAdd,
-  "list": onList,
+  "watch":   onAdd,
+  "list":    onList,
   "unwatch": onRemove,
-  "reset": onReset,
-  "md5": onMd5,
+  "reset":   onReset,
+  "md5":     onMd5,
+  "stop":    onStop,
+  "start":   onStart,
+  "help":    onHelp,
   "default": onDefault,
 }
 
 func onAdd(ctx *Context, args []string) {
   if len(args) < 3 {
-    ctx.Socket.Broadcast([]byte("Error: Not enough arguments"))
+    say(ctx.Socket, "Error: Not enough arguments")
     return
   }
 
@@ -24,7 +27,7 @@ func onAdd(ctx *Context, args []string) {
   file := rawFieldsToFile(fields)
   file.save(ctx.Database)
 
-  ctx.Socket.Broadcast([]byte("Watching: " + file.Hash + ":" + file.Path))
+  say(ctx.Socket, "Watching: " + file.Hash + ":" + file.Path)
 }
 
 func onList(ctx *Context, _ []string) {
@@ -35,12 +38,12 @@ func onList(ctx *Context, _ []string) {
     response += file.Hash + ":" + file.Path + "\n"
   }
 
-  ctx.Socket.Broadcast([]byte(response))
+  say(ctx.Socket, response)
 }
 
 func onRemove(ctx *Context, args []string) {
   if len(args) < 2 {
-    ctx.Socket.Broadcast([]byte("Error: Not enough arguments"))
+    say(ctx.Socket, "Error: Not enough arguments")
     return
   }
 
@@ -48,37 +51,64 @@ func onRemove(ctx *Context, args []string) {
   files := filesByHash(ctx.Database, hash)
 
   if len(files) == 0 {
-    ctx.Socket.Broadcast([]byte("Error: No file with hash " + hash))
+    say(ctx.Socket, "Error: No file with hash " + hash)
     return
   }
 
   file := &files[0]
   file.remove(ctx.Database)
 
-  ctx.Socket.Broadcast([]byte("Unwatched: " + file.Hash + ":" + file.Path))
+  say(ctx.Socket, "Unwatched: " + file.Hash + ":" + file.Path)
 }
 
 func onReset(ctx *Context, _ []string) {
   clearFiles(ctx.Database)
 
-  ctx.Socket.Broadcast([]byte("Unwatched: All"))
+  say(ctx.Socket, "Unwatched: All")
 }
 
 func onMd5(ctx *Context, args []string) {
   if len(args) < 2 {
-    ctx.Socket.Broadcast([]byte("Error: Not enough arguments"))
+    say(ctx.Socket, "Error: Not enough arguments")
     return
   }
 
   hash, err := md5By(args[1])
 
   if err != nil {
-    ctx.Socket.Broadcast([]byte("Error: " + err.Error()))
+    say(ctx.Socket, "Error: " + err.Error())
   } else {
-    ctx.Socket.Broadcast([]byte("MD5: " + hash))
+    say(ctx.Socket, "MD5: " + hash)
   }
 }
 
+func onStop(ctx *Context, _ []string) {
+  ctx.Watcher.stop()
+}
+
+func onStart(ctx *Context, _ []string) {
+  ctx.Watcher.start()
+}
+
+func onHelp(ctx *Context, _ []string) {
+  say(ctx.Socket, `Commands:
+
+  'watch hash=[MD5 checksum] path=[File absolute path]' Starts watching for the file
+
+  'unwatch [MD5 checksum]' Stops watching for the file
+
+  'list' Shows the list of files currently being watched
+
+  'reset' Unwatches all the files
+
+  'stop' Pauses the watcher
+
+  'start' Starts the watcher
+
+  'md5 [File absolute path]' Returns MD5 checksum by the absolute path
+`)
+}
+
 func onDefault(ctx *Context, args []string) {
-  ctx.Socket.Broadcast([]byte("Error: Wrong command " + args[0]))
+  say(ctx.Socket, "Error: Wrong command " + args[0] + ", type `help` for info about commands")
 }
