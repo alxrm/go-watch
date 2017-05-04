@@ -5,7 +5,6 @@ import (
   _ "github.com/mattn/go-sqlite3"
   "gopkg.in/olahol/melody.v1"
   "log"
-  "net/http"
   "strings"
 )
 
@@ -14,6 +13,9 @@ type Context struct {
   Database *Database
   Socket   *melody.Melody
 }
+
+//go:generate file2const -package main assets/index.html:indexHtml index_html.go
+
 
 func main() {
   db, err := newDB(databaseFile, createStatement)
@@ -30,6 +32,7 @@ func main() {
     IntervalMillis: 1000,
     Database:       db,
     OnObserved: func(file *File, path string) {
+      file.remove(db)
       say(socket, "Found: " + path)
     },
     OnStopped: func() {
@@ -44,7 +47,8 @@ func main() {
   }
 
   router.GET("/", func(c *gin.Context) {
-    http.ServeFile(c.Writer, c.Request, "./assets/index.html")
+    c.Writer.Header().Set("Content-Type", "text/html")
+    c.String(200, indexHtml)
   })
 
   router.GET("/watcher", func(c *gin.Context) {
@@ -71,6 +75,5 @@ func main() {
     }
   })
 
-  watcher.start()
   router.Run(":5000")
 }
