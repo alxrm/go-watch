@@ -9,8 +9,6 @@ import (
   "strings"
 )
 
-//go:generate file2const -package main assets/index.html:indexHtml index_html.go
-
 type Context struct {
   Watcher  *Watcher
   Database *Database
