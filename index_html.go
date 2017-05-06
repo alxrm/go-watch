@@ -8,7 +8,7 @@ const (
 
 <style>
   body {
-    background: #000000;
+    background: #2b2b2b;
     color: #efefef;
     padding: 16px;
   }
@@ -25,7 +25,7 @@ const (
   }
 
   #text {
-    background: #000000;
+    background: #2b2b2b;
     color: #efefef;
     width: 100%;
     padding: 10px 0 0;
@@ -55,18 +55,24 @@ const (
   var terminal = document.getElementById("terminal");
   var text = document.getElementById("text");
 
+  var scrolldown = function () {
+    container.scrollTop = container.scrollHeight;
+  };
+
   var add = function (text, from) {
     var sender = from ? from + " " : "";
 
     terminal.innerText += sender + text + "\n";
-    container.scrollTop = container.scrollHeight;
+    scrolldown()
   };
 
-  var save = function(cmd) {
+  var save = function (cmd) {
     entered = [cmd].concat(entered);
   };
 
-  var prev = function() {
+  var prev = function () {
+    scrolldown();
+
     if (offset === entered.length - 1) {
       return
     }
@@ -75,7 +81,9 @@ const (
     text.value = entered[offset];
   };
 
-  var next = function() {
+  var next = function () {
+    scrolldown();
+
     if (offset === -1) {
       text.value = "";
       return
@@ -85,7 +93,7 @@ const (
     text.value = entered[offset] || "";
   };
 
-  var exec = function() {
+  var exec = function () {
     save(text.value);
     add(text.value, "$");
     ws.send(text.value);

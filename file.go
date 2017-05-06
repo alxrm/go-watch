@@ -7,35 +7,23 @@ type File struct {
   Path string
 }
 
-func (file *File) save(db *Database) {
-  err := db.exec(`INSERT INTO files(hash, path) VALUES(?, ?);`, fileToRaw(file)...)
-
-  if err != nil {
-    log.Fatal(err)
-  }
+func (file *File) save(db *Database) error {
+  return db.exec(`INSERT INTO files(hash, path) VALUES(?, ?);`, fileToRaw(file)...)
 }
 
-func (file *File) remove(db *Database) {
-  err := db.exec(`DELETE FROM files WHERE hash = ? and path = ?`, file.Hash, file.Path)
-
-  if err != nil {
-    log.Fatal(err)
-  }
+func (file *File) remove(db *Database) error {
+  return db.exec(`DELETE FROM files WHERE hash = ? and path = ?`, file.Hash, file.Path)
 }
 
-func clearFiles(db *Database) {
-  err := db.exec(`DELETE FROM files`)
-
-  if err != nil {
-    log.Fatal(err)
-  }
+func clearFiles(db *Database) error {
+  return db.exec(`DELETE FROM files`)
 }
 
 func allFiles(db *Database) []File {
-  res, err := db.queryAll(`SELECT * FROM files;`, fileToFields, fieldsToFile)
+  res, err := db.queryAll(`SELECT hash, path FROM files;`, fileToFields, fieldsToFile)
 
   if err != nil {
-    log.Fatal(err)
+    log.Println(err)
     return []File{}
   }
 
@@ -44,10 +32,10 @@ func allFiles(db *Database) []File {
 
 func filesByHash(db *Database, hash string) []File {
   args := []interface{}{hash}
-  res, err := db.query(`SELECT * FROM files WHERE hash = ?;`, args, fileToFields, fieldsToFile)
+  res, err := db.query(`SELECT hash, path FROM files WHERE hash = ?;`, args, fileToFields, fieldsToFile)
 
   if err != nil {
-    log.Fatal(err)
+    log.Println(err)
     return []File{}
   }
 

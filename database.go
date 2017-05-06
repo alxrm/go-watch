@@ -35,7 +35,9 @@ func (d *Database) exec(command string, args ...interface{}) error {
   return nil
 }
 
-func (d *Database) query(command string, args []interface{}, fieldsOf func() []interface{}, entityOf func(fields []interface{}) interface{}) ([]interface{}, error) {
+func (d *Database) query(command string, args []interface{}, fieldsOf func() []interface{},
+  entityOf func(fields []interface{}) interface{}) ([]interface{}, error) {
+
   rows, err := d.client.Query(command, args...)
 
   if err != nil {

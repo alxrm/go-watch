@@ -1,10 +1,10 @@
 package main
 
 import (
-  "github.com/gin-gonic/gin"
   _ "github.com/mattn/go-sqlite3"
   "gopkg.in/olahol/melody.v1"
   "log"
+  "github.com/gin-gonic/gin"
   "strings"
 )
 
@@ -16,7 +16,6 @@ type Context struct {
 
 //go:generate file2const -package main assets/index.html:indexHtml index_html.go
 
-
 func main() {
   db, err := newDB(databaseFile, createStatement)
 
@@ -25,6 +24,7 @@ func main() {
     return
   }
 
+  gin.SetMode(gin.ReleaseMode)
   router := gin.Default()
   socket := melody.New()
 

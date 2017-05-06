@@ -30,7 +30,15 @@ func onAdd(ctx *Context, args []string) {
     return
   }
 
-  file.save(ctx.Database)
+  if err := file.save(ctx.Database); err != nil {
+    if strings.HasPrefix(err.Error(), "UNIQUE") {
+      say(ctx.Socket, "Error: The file with this hash is already being watched")
+    } else {
+      say(ctx.Socket, "Error: " + err.Error())
+    }
+
+    return
+  }
 
   say(ctx.Socket, "Watching: " + file.Hash + ":" + file.Path)
 }
@@ -61,7 +69,11 @@ func onRemove(ctx *Context, args []string) {
   }
 
   file := &files[0]
-  file.remove(ctx.Database)
+
+  if err := file.remove(ctx.Database); err != nil {
+    say(ctx.Socket, "Error: " + err.Error())
+    return
+  }
 
   say(ctx.Socket, "Unwatched: " + file.Hash + ":" + file.Path)
 }
