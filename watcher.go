@@ -6,7 +6,6 @@ import (
 
 type Watcher struct {
   IntervalMillis int
-  RootDir        string
   Database       *Database
   OnObserved     func(file *File, where string)
   OnStopped      func()
@@ -14,6 +13,10 @@ type Watcher struct {
 }
 
 func (w *Watcher) start() {
+  if w.quit != nil {
+    return
+  }
+
   w.quit = make(chan bool)
 
   go func() {
@@ -35,21 +38,25 @@ func (w *Watcher) performCheck() {
   files := allFiles(w.Database)
 
   for _, file := range files {
-    fullPath := fullPathBy(w.RootDir, file.Path)
-    hash, err := md5By(fullPath)
+    hash, err := md5By(file.Path)
 
     if err != nil {
       continue
     }
 
     if hash == file.Hash {
-      w.OnObserved(&file, fullPath)
+      w.OnObserved(&file, file.Path)
     }
   }
 }
 
 func (w *Watcher) stop() {
+  if w.quit == nil {
+    return
+  }
+
   w.quit <- true
+  w.quit = nil
 
   if w.OnStopped != nil {
     w.OnStopped()
