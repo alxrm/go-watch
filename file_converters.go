@@ -21,22 +21,15 @@ func fieldsToFile(fields []interface{}) interface{} {
 
 func rawFieldsToFile(fields []string) *File {
   file := &File{}
+  hash := strings.ToLower(fields[0])
+  path := fields[1]
 
-  for _, fd := range fields {
-    arg := strings.Split(fd, "=")
+  if validateHash(hash) {
+    file.Hash = hash
+  }
 
-    if len(arg) < 2 {
-      continue
-    }
-
-    key := strings.ToLower(arg[0])
-    value := strings.TrimSpace(arg[1])
-
-    if key == "hash" {
-      file.Hash = value
-    } else if key == "path" {
-      file.Path = value
-    }
+  if len(path) > 0 {
+    file.Path = path
   }
 
   return file

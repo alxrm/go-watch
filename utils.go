@@ -3,28 +3,11 @@ package main
 import (
   "crypto/md5"
   "encoding/hex"
-  "gopkg.in/olahol/melody.v1"
   "io"
-  "io/ioutil"
-  "log"
   "os"
+  "strings"
+  "log"
 )
-
-func printDirContents(path string) {
-  files, err := ioutil.ReadDir(path)
-
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  for _, f := range files {
-    log.Println(f.Name())
-  }
-}
-
-func say(sock *melody.Melody, msg string) {
-  sock.Broadcast([]byte(msg))
-}
 
 func md5By(filePath string) (string, error) {
   file, errOpen := os.Open(filePath)
@@ -47,4 +30,9 @@ func md5By(filePath string) (string, error) {
   result = hex.EncodeToString(hash.Sum(nil))
 
   return result, nil
+}
+
+func validateHash(hash string) bool {
+  log.Println(hash)
+  return !(strings.Contains(hash, "/") || strings.Contains(hash, ".")) && len(hash) > 0
 }

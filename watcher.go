@@ -8,6 +8,7 @@ type Watcher struct {
   IntervalMillis int
   Database       *Database
   OnObserved     func(file *File, where string)
+  OnStarted      func()
   OnStopped      func()
   quit           chan bool
 }
@@ -18,6 +19,10 @@ func (w *Watcher) start() {
   }
 
   w.quit = make(chan bool)
+
+  if w.OnStarted != nil {
+    w.OnStarted()
+  }
 
   go func() {
     delay := time.Duration(w.IntervalMillis) * time.Millisecond

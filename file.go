@@ -3,8 +3,8 @@ package main
 import "log"
 
 type File struct {
-  Hash string
-  Path string
+  Hash string `json:"hash"`
+  Path string `json:"path"`
 }
 
 func (file *File) save(db *Database) error {

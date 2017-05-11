@@ -33,10 +33,13 @@ func main() {
     Database:       db,
     OnObserved: func(file *File, path string) {
       file.remove(db)
-      say(socket, "Found: " + path)
+      say(socket, Reply{Subject:"found", Result:path})
+    },
+    OnStarted: func() {
+      say(socket, Reply{Subject:"started"})
     },
     OnStopped: func() {
-      say(socket, "Stopped")
+      say(socket, Reply{Subject:"stopped"})
     },
   }
 
@@ -56,11 +59,11 @@ func main() {
   })
 
   socket.HandleConnect(func(s *melody.Session) {
-    say(socket, "Connected, ready to watch!")
+    say(socket, Reply{Subject:"connected"})
   })
 
   socket.HandleMessage(func(s *melody.Session, msg []byte) {
-    args := strings.Split(string(msg), " ")
+    args := strings.Split(strings.TrimSpace(string(msg)), " ")
 
     if len(args) == 0 {
       return
