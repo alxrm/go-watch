@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	socket := melody.New()
 
